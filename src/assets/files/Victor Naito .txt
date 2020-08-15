@@ -1,0 +1,8 @@
+	Nome Completo: Victor Naito 
+        Data de Nascimento: 1993-07-18
+        CPF: 0545656565655
+        RG: 5665565656
+
+        Usuario Autenticado
+        Login: victor.naito@hotmail.com
+        IP: ::1

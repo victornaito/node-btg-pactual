@@ -1,0 +1,101 @@
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+
+<html>
+    <form class="form container-fluid" onsubmit="save()">
+        <div class="form-group">
+            <label for="login">Login</label>
+            <input id="login" required class="form-control" name="login" />
+            <label for="nome">Nome</label>
+            <input id="nome" required type="text" class="form-control" name="nome" />
+            <label for="cpf">CPF</label>
+            <input id="cpf" required class="form-control" type="number" name="cpf" />
+            <label for="rg">RG</label>
+            <input id="rg" required class="form-control" type="number" name="rg" />
+            <label for="nascimento">Nascimento</label>
+            <input id="nascimento" required class="form-control" type="date" name="nascimento" />
+            <div>
+                <button class="btn btn-primary form-control" style="margin-top: 10px; margin-bottom: 10px ;" type="button" onclick="getToken()">Login</button>
+                <button class="btn btn-primary form-control" type="submit">Salvar</button>
+            </div>
+        </div>
+    </form>
+    
+<script>
+    let token = null
+
+    function save() {
+
+        if (token == null) {
+            alert('Por favor, efetue o login para salvar.')
+            event.preventDefault()
+            return
+        }
+
+        const ajax = getHttpClient("POST", '/file');
+        ajax.setRequestHeader('Authorization', `Bearer ${token}`)
+        ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        ajax.send(this.getParametersAsQueryString())
+
+        ajax.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                alert('salvo com sucesso!')
+            } 
+            else if (this.readyState == 4 && this.status == 401) {
+                alert('token expirou! Por favor, efetue o login novamente.')
+                event.preventDefault()
+            }
+        };
+    }
+
+    function getToken() {
+        const parameters = this.getParametersAsQueryString()
+        const ajax = getHttpClient("GET", `/login?${parameters}`);
+        ajax.send()
+
+        ajax.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this.responseText)
+                token = this.responseText
+            }
+        };
+    }
+
+    function getHttpClient(method, path) {
+        var ajax = new XMLHttpRequest()
+        ajax.open(method, `http://localhost:5000${path}`)
+        return ajax
+    }
+
+    function getUser() {
+        const login = document.getElementById('login').value;
+        const nome = document.getElementById('nome').value;
+        const cpf = document.getElementById('cpf').value;
+        const rg = document.getElementById('rg').value;
+        const nascimento = document.getElementById('nascimento').value;
+        const user = {
+            login,
+            nome,
+            cpf,
+            rg,
+            nascimento
+        }
+        console.log(user);
+        return user
+    }
+
+    function getParametersAsQueryString() {
+        let queryString = ''
+        const user = getUser()
+
+        Object.keys(user).forEach((key, keyIndex) => {
+            if (keyIndex == 0) 
+                queryString += `${key}=${user[key]}`
+            else
+                queryString += `&${key}=${user[key]}`
+        })
+
+        return queryString
+    }
+
+</script>
+</html>
